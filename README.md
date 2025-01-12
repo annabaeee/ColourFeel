@@ -1,6 +1,6 @@
 # ColourFeel - by Tom Chinnery and Anna Vass
 
-*"Are your emotions too big for words? Describe it with a color instead!"*
+*"Are your emotions bigger than words? Try colors instead!"*
 
 ColourFeel is a mental wellness app that helps you track your mood each day using colors. The meaning of each color is not predetermined; you choose what the color represents to you.
 
