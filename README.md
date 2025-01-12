@@ -20,4 +20,4 @@ ColourFeel is a mental wellness app that helps you track your mood each day usin
 
 ✦ **Target user:** Individuals who struggle with emotional regulation, creative individuals
 
-✦ Mockups & user flow
+✦ [Mockups & user flow](https://www.figma.com/design/qdCBk5hrgXpwJAcZUTCkQW/ColourFeel?node-id=0-1&t=UGzRi13MlKrpMEy4-1)
