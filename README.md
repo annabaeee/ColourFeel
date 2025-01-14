@@ -8,7 +8,7 @@ ColourFeel is a mental wellness app that helps you track your mood each day usin
 
 ✦ Choose a color from the color picker & describe how it represents your current mood/day
 
-✦ See the calendar for an overview of this months's colors
+✦ See the calendar for an overview of this month's colors
 
 ✦ Get a weekly analysis of your colors & see interesting insights such as last month's average color, whether you've had a more "saturated" week, etc.
 
