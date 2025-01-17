@@ -64,6 +64,9 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.ui.tooling.preview.android)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.ui.android)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
