@@ -9,11 +9,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -77,6 +79,7 @@ fun ColorPickerScreen(modifier: Modifier = Modifier) {
                 Box(
                     modifier = Modifier
                         .size(60.dp)
+                        .clip(RoundedCornerShape(12.dp)) // Add this to round the corners
                         .background(color)
                         .clickable { selectedColor = color }
                 )
@@ -96,6 +99,7 @@ fun ColorPickerScreen(modifier: Modifier = Modifier) {
             Box(
                 modifier = Modifier
                     .size(width = 80.dp, height = 100.dp)
+                    .clip(RoundedCornerShape(12.dp)) // Add this to round the corners
                     .background(selectedColor)
             )
 
@@ -115,7 +119,7 @@ fun ColorPickerScreen(modifier: Modifier = Modifier) {
                     androidx.compose.material3.TextField(
                         value = textFieldValue,
                         onValueChange = { textFieldValue = it },
-                        label = { androidx.compose.material3.Text("Enter text") },
+                        label = { Text("Enter text") },
                         singleLine = true,
                         modifier = Modifier
                             .weight(1f)
@@ -132,7 +136,7 @@ fun ColorPickerScreen(modifier: Modifier = Modifier) {
                     androidx.compose.material3.TextField(
                         value = textFieldValue1,
                         onValueChange = { textFieldValue1 = it },
-                        label = { androidx.compose.material3.Text("How so?") },
+                        label = { Text("How so?") },
                         singleLine = true,
                         modifier = Modifier
                             .weight(1f)
