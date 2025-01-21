@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
@@ -38,7 +39,10 @@ class PageFragment1 : Fragment(R.layout.fragment_page_1) {
         composeView.findViewById<ComposeView>(R.id.composeView).setContent {
             ColourFeelTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ColorPickerScreen(modifier = Modifier.padding(innerPadding))
+                    ColorPickerScreen(modifier = Modifier
+                        .padding(innerPadding)
+                        .background(Color.Red)
+                    )
                 }
             }
         }
@@ -92,8 +96,9 @@ fun ColorPickerScreen(modifier: Modifier = Modifier) {
                 Box(
                     modifier = Modifier
                         .size(60.dp)
-                        .clip(RoundedCornerShape(12.dp)) // Add this to round the corners
+                        .clip(RoundedCornerShape(18.dp)) // Add this to round the corners
                         .background(color)
+                        .border(6.dp, Color.White, RoundedCornerShape(18.dp))
                         .clickable { selectedColor = color }
                 )
             }
@@ -111,9 +116,10 @@ fun ColorPickerScreen(modifier: Modifier = Modifier) {
             // The selected color box
             Box(
                 modifier = Modifier
-                    .size(width = 80.dp, height = 100.dp)
-                    .clip(RoundedCornerShape(12.dp)) // Add this to round the corners
+                    .size(width = 80.dp, height = 120.dp)
+                    .clip(RoundedCornerShape(24.dp)) // Add this to round the corners
                     .background(selectedColor)
+                    .border(12.dp, Color.White, RoundedCornerShape(24.dp))
             )
 
             Spacer(modifier = Modifier.width(16.dp)) // Add space between the square and the TextField
