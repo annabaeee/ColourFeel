@@ -10,7 +10,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -19,6 +18,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.graphics.Color
 import at.ac.fhstp.colourfeel.ui.theme.ColourFeelTheme
 import androidx.compose.ui.Alignment
@@ -38,10 +40,18 @@ class PageFragment1 : Fragment(R.layout.fragment_page_1) {
         // Set the Compose content inside the Fragment using ComposeView
         composeView.findViewById<ComposeView>(R.id.composeView).setContent {
             ColourFeelTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ColorPickerScreen(modifier = Modifier
-                        .padding(innerPadding)
-                        .background(Color.Red)
+                // Pass selectedColor as the background of the Scaffold
+                val selectedColor by remember { mutableStateOf(Color.White) }
+
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = selectedColor // Set the background color of the scaffold
+                ) { innerPadding ->
+                    ColorPickerScreen(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .background(Color.Red) // Optionally keep a background color for other content
+                            .fillMaxSize()
                     )
                 }
             }
@@ -52,6 +62,37 @@ class PageFragment1 : Fragment(R.layout.fragment_page_1) {
     }
 }
 
+// Function to contrast a color
+fun contrastColor(color: Color): Color {
+    val red = (((color.red * 128) + 192)%255).toInt()
+    val green = (((color.green * 128) + 192)%255).toInt()
+    val blue = (((color.blue * 128) + 192)%255).toInt()
+    return Color((red*0.6+green*0.2+blue*0.2).toInt() / 255f, (red*0.2+green*0.6+blue*0.2).toInt() / 255f, (red*0.2+green*0.2+blue*0.6).toInt() / 255f)
+}
+
+// Function to create off white
+fun offWhiteColor(color: Color, value: Int): Color {
+    val red = ((color.red * value) + 255 - value).toInt()
+    val green = ((color.green * value) + 255 - value).toInt()
+    val blue = ((color.blue * value) + 255 - value).toInt()
+    return Color(red / 255f, green / 255f, blue / 255f)
+}
+
+// Function to create a midpoint colour
+fun midColor(color: Color, color2 : Color): Color {
+    val red = (((color.red * 128) + (color2.red * 128))%257).toInt()
+    val green = (((color.green * 128) + (color2.green * 128))%257).toInt()
+    val blue = (((color.blue * 128) + (color2.blue * 128))%257).toInt()
+    return Color(red / 255f, green / 255f, blue / 255f)
+}
+
+data class ColorDay(var date: Int, var color: Color, var colorName: String, var dateText: String )
+
+object GlobalState {
+    var todayData by mutableStateOf(ColorDay(112233, Color.White, "..", "..."))
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ColorPickerScreen(modifier: Modifier = Modifier) {
     // The list of 36 colors for the grid
@@ -71,15 +112,13 @@ fun ColorPickerScreen(modifier: Modifier = Modifier) {
     )
 
     val colors = remember { originalColors.shuffled() }
-    // The currently selected color
-    var selectedColor by remember { mutableStateOf(Color.White) }
-    // State for the TextField input
-    var textFieldValue by remember { mutableStateOf("") }
-    var textFieldValue1 by remember { mutableStateOf("")}
+
+    val contrastColour = contrastColor(GlobalState.todayData.color)
 
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(GlobalState.todayData.color) // Use selected color as the background for the Column
             .padding(16.dp)
     ) {
         // Grid of colors
@@ -98,8 +137,8 @@ fun ColorPickerScreen(modifier: Modifier = Modifier) {
                         .size(60.dp)
                         .clip(RoundedCornerShape(18.dp)) // Add this to round the corners
                         .background(color)
-                        .border(6.dp, Color.White, RoundedCornerShape(18.dp))
-                        .clickable { selectedColor = color }
+                        .border(6.dp, offWhiteColor(midColor(GlobalState.todayData.color, color), 32), RoundedCornerShape(18.dp))
+                        .clickable { GlobalState.todayData = GlobalState.todayData.copy(color = color) }
                 )
             }
         }
@@ -118,8 +157,8 @@ fun ColorPickerScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .size(width = 80.dp, height = 120.dp)
                     .clip(RoundedCornerShape(24.dp)) // Add this to round the corners
-                    .background(selectedColor)
-                    .border(12.dp, Color.White, RoundedCornerShape(24.dp))
+                    .background(GlobalState.todayData.color)
+                    .border(12.dp, offWhiteColor(GlobalState.todayData.color, 32), RoundedCornerShape(24.dp))
             )
 
             Spacer(modifier = Modifier.width(16.dp)) // Add space between the square and the TextField
@@ -132,16 +171,23 @@ fun ColorPickerScreen(modifier: Modifier = Modifier) {
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically // Align the components vertically
                 ) {
-                    Text("Today you feel: ", modifier = Modifier.weight(1f))
+                    Text("Today you feel: ", modifier = Modifier.weight(1f), color = contrastColour) // Apply inverted text color
 
                     // The TextField for user input
                     androidx.compose.material3.TextField(
-                        value = textFieldValue,
-                        onValueChange = { textFieldValue = it },
-                        label = { Text("Enter text") },
+                        value = GlobalState.todayData.colorName,
+                        onValueChange = { GlobalState.todayData = ColorDay(GlobalState.todayData.date, GlobalState.todayData.color, it, GlobalState.todayData.dateText) },
+                        label = { Text("Feeling name?", color = contrastColour) },
                         singleLine = true,
                         modifier = Modifier
                             .weight(1f)
+                            .background(GlobalState.todayData.color), // Ensure transparent background for text field
+                        textStyle = LocalTextStyle.current.copy(contrastColour),
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = contrastColour, // Change the border color when focused
+                            unfocusedIndicatorColor = contrastColour.copy(alpha = 0.6f), // Change the border color when not focused
+                            containerColor = GlobalState.todayData.color // Optional: Set the background of the text field
+                        )
                     )
                 }
 
@@ -153,23 +199,22 @@ fun ColorPickerScreen(modifier: Modifier = Modifier) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     androidx.compose.material3.TextField(
-                        value = textFieldValue1,
-                        onValueChange = { textFieldValue1 = it },
-                        label = { Text("How so?") },
+                        value = GlobalState.todayData.dateText,
+                        onValueChange = { GlobalState.todayData = ColorDay(GlobalState.todayData.date, GlobalState.todayData.color, GlobalState.todayData.colorName, it) },
+                        label = { Text("Why so?", color = contrastColour) },
                         singleLine = true,
                         modifier = Modifier
                             .weight(1f)
+                            .background(GlobalState.todayData.color), // Ensure transparent background for text field
+                        textStyle = LocalTextStyle.current.copy(contrastColour), // Apply inverted color to text
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = contrastColour, // Change the border color when focused
+                            unfocusedIndicatorColor = contrastColour.copy(alpha = 0.6f), // Change the border color when not focused
+                            containerColor = GlobalState.todayData.color // Optional: Set the background of the text field
+                        )
                     )
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ColorPickerScreenPreview() {
-    ColourFeelTheme {
-        ColorPickerScreen()
     }
 }

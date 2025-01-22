@@ -16,6 +16,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Color
 import at.ac.fhstp.colourfeel.ui.theme.ColourFeelTheme
@@ -36,10 +37,15 @@ class PageFragment3 : Fragment(R.layout.fragment_page_3) {
         // Set the Compose content inside the Fragment using ComposeView
         composeView.findViewById<ComposeView>(R.id.composeView).setContent {
             ColourFeelTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    AnalysisScreen(modifier = Modifier
-                        .padding(innerPadding)
-                        .background(Color.Red)
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = GlobalState.todayData.color // Set the background color of the scaffold
+                ) { innerPadding ->
+                    AnalysisScreen(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .background(Color.Red) // Optionally keep a background color for other content
+                            .fillMaxSize()
                     )
                 }
             }
@@ -50,13 +56,13 @@ class PageFragment3 : Fragment(R.layout.fragment_page_3) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnalysisScreen(modifier: Modifier = Modifier) {
-    Column (
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
+
+    val contrastColour = contrastColor(GlobalState.todayData.color)
+
+    Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -64,18 +70,23 @@ fun AnalysisScreen(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically // Align the components vertically
         ) {
+
             // The selected color box
             Box(
                 modifier = Modifier
                     .size(width = 80.dp, height = 120.dp)
-                    .clip(RoundedCornerShape(12.dp)) // Add this to round the corners
-                    .background(Color.Red)
-                    .border(12.dp, Color.White, RoundedCornerShape(24.dp))
+                    .clip(RoundedCornerShape(24.dp)) // Add this to round the corners
+                    .background(GlobalState.todayData.color)
+                    .border(
+                        12.dp,
+                        offWhiteColor(GlobalState.todayData.color, 32),
+                        RoundedCornerShape(24.dp)
+                    )
             )
 
             Spacer(modifier = Modifier.width(16.dp)) // Add space between the square and the TextField
 
-            Column {
+            Column{
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -83,19 +94,20 @@ fun AnalysisScreen(modifier: Modifier = Modifier) {
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically // Align the components vertically
                 ) {
-                    Text("Today you feel: ", modifier = Modifier.weight(1f))
+                    Text(
+                        "Today you feel: ",
+                        modifier = Modifier.weight(1f),
+                        color = contrastColour
+                    ) // Apply inverted text color
 
-                    // The TextField for user input
-                    var textFieldValue = ""
-                    androidx.compose.material3.TextField(
-                        value = textFieldValue,
-                        onValueChange = { textFieldValue = it },
-                        label = { Text("Enter text") },
-                        singleLine = true,
-                        modifier = Modifier
-                            .weight(1f)
+                    Text(
+                        GlobalState.todayData.colorName,
+                        modifier = Modifier.weight(1f),
+                        color = contrastColour
                     )
                 }
+
+                Spacer(modifier = Modifier.height(16.dp)) // Add space between the square and the TextField
 
                 Row(
                     modifier = Modifier
@@ -104,14 +116,16 @@ fun AnalysisScreen(modifier: Modifier = Modifier) {
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    var textFieldValue1 = ""
-                    androidx.compose.material3.TextField(
-                        value = textFieldValue1,
-                        onValueChange = { textFieldValue1 = it },
-                        label = { Text("How so?") },
-                        singleLine = true,
-                        modifier = Modifier
-                            .weight(1f)
+                    Text(
+                        "Due To: ",
+                        modifier = Modifier.weight(1f),
+                        color = contrastColour
+                    ) // Apply inverted text color
+
+                    Text(
+                        GlobalState.todayData.dateText,
+                        modifier = Modifier.weight(1f),
+                        color = contrastColour
                     )
                 }
             }
@@ -146,7 +160,7 @@ fun AnalysisScreen(modifier: Modifier = Modifier) {
                         .background(Brush.verticalGradient(
                             colors = listOf(dataPoint[1], dataPoint[2]) as List<Color>
                         ))
-                        .border(12.dp, Color.White, RoundedCornerShape(24.dp))
+                        .border(12.dp, offWhiteColor(GlobalState.todayData.color, 32), RoundedCornerShape(24.dp))
                 )
                 Text(""+dataPoint[0],
                     modifier = Modifier
@@ -155,12 +169,5 @@ fun AnalysisScreen(modifier: Modifier = Modifier) {
                 )
             }
         }
-    }
-}
-
-@Composable
-fun AnalysisScreenPreview() {
-    ColourFeelTheme {
-        ColorPickerScreen()
     }
 }
