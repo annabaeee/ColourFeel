@@ -18,18 +18,42 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.colourfeel.ui.theme.ColourFeelTheme
 import com.example.colourfeel.R
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.format.TextStyle
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             ColourFeelTheme {
+                val navController = rememberNavController()
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ColorPickerScreen(modifier = Modifier.padding(innerPadding))
+                    NavHost(
+                        navController = navController,
+                        startDestination = "color_picker",
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
+                        composable("color_picker") {
+                            ColorPickerScreen(
+                                onNavigateToCalendar = { navController.navigate("calendar") }
+                            )
+                        }
+                        composable("calendar") {
+                            CalendarScreen(onNavigateBack = { navController.popBackStack() })
+                        }
+                    }
                 }
             }
         }
@@ -37,7 +61,10 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ColorPickerScreen(modifier: Modifier = Modifier) {
+fun ColorPickerScreen(
+    modifier: Modifier = Modifier,
+    onNavigateToCalendar: () -> Unit
+) {
     // The list of 36 colors for the grid
     val originalColors = listOf(
         colorResource(R.color.red), colorResource(R.color.orange), colorResource(R.color.yellow),
@@ -145,13 +172,99 @@ fun ColorPickerScreen(modifier: Modifier = Modifier) {
                 }
             }
         }
+        // Button to navigate to the calendar screen
+        androidx.compose.material3.Button(
+            onClick = onNavigateToCalendar,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Text("View Calendar")
+        }
     }
 }
+
+@Composable
+fun CalendarScreen(onNavigateBack: () -> Unit) {
+    val currentDate = LocalDate.now()
+    val currentMonth = YearMonth.now()
+    val daysInMonth = currentMonth.lengthOfMonth()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        // Header with Back Button
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            androidx.compose.material3.Button(onClick = onNavigateBack) {
+                Text("Back")
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Text(
+                text = "${currentMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())} ${currentMonth.year}",
+                style = androidx.compose.material3.MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Days of the week headers
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat").forEach { day ->
+                Text(text = day, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Calendar grid
+        val firstDayOfMonth = currentMonth.atDay(1).dayOfWeek.value % 7
+        val days = (1..daysInMonth).map { it.toString() }
+        val calendarDays = List(firstDayOfMonth) { "" } + days
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(7),
+            contentPadding = PaddingValues(4.dp),
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(calendarDays) { day ->
+                Text(
+                    text = day,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(Color.LightGray.takeIf { day.isNotEmpty() } ?: Color.Transparent)
+                        .padding(8.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable
 fun ColorPickerScreenPreview() {
     ColourFeelTheme {
-        ColorPickerScreen()
+        ColorPickerScreen(onNavigateToCalendar = {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CalendarScreenPreview() {
+    ColourFeelTheme {
+        CalendarScreen(onNavigateBack = {})
     }
 }
