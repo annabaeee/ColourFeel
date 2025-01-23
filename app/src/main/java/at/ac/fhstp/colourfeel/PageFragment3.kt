@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.text.font.FontWeight
 
 class PageFragment3 : Fragment(R.layout.fragment_page_3) {
 
@@ -63,6 +64,8 @@ fun AnalysisScreen(modifier: Modifier = Modifier) {
     val contrastColour = contrastColor(GlobalState.todayData.color)
 
     Column {
+        Spacer(modifier = Modifier.height(16.dp))
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -97,17 +100,19 @@ fun AnalysisScreen(modifier: Modifier = Modifier) {
                     Text(
                         "Today you feel: ",
                         modifier = Modifier.weight(1f),
-                        color = contrastColour
+                        color = contrastColour,
+                        fontWeight = FontWeight.Black
                     ) // Apply inverted text color
 
                     Text(
                         GlobalState.todayData.colorName,
                         modifier = Modifier.weight(1f),
-                        color = contrastColour
+                        color = contrastColour,
+                        fontWeight = FontWeight.Black
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp)) // Add space between the square and the TextField
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Row(
                     modifier = Modifier
@@ -119,13 +124,16 @@ fun AnalysisScreen(modifier: Modifier = Modifier) {
                     Text(
                         "Due To: ",
                         modifier = Modifier.weight(1f),
-                        color = contrastColour
+                        color = contrastColour,
+                        fontWeight = FontWeight.Black
+
                     ) // Apply inverted text color
 
                     Text(
                         GlobalState.todayData.dateText,
                         modifier = Modifier.weight(1f),
-                        color = contrastColour
+                        color = contrastColour,
+                        fontWeight = FontWeight.Black
                     )
                 }
             }
@@ -166,6 +174,7 @@ fun AnalysisScreen(modifier: Modifier = Modifier) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(24.dp)
+                    , fontWeight = FontWeight.Black
                 )
             }
         }
