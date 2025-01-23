@@ -3,12 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center">
+    android:gravity="center"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".PageFragment2">
 
-    <TextView
-        android:id="@+id/pageTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Calendar"
-        android:textSize="24sp"/>
+    <!-- Use ComposeView to display the Compose UI -->
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/composeView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal" />
 </LinearLayout>

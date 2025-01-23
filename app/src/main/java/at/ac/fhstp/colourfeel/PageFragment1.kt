@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 
 class PageFragment1 : Fragment(R.layout.fragment_page_1) {
 
@@ -89,12 +90,13 @@ fun midColor(color: Color, color2 : Color): Color {
 data class ColorDay(var date: Int, var color: Color, var colorName: String, var dateText: String )
 
 object GlobalState {
-    var todayData by mutableStateOf(ColorDay(112233, Color.White, "..", "..."))
+    var todayData by mutableStateOf(ColorDay(112233, Color.White, "", ""))
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ColorPickerScreen(modifier: Modifier = Modifier) {
+
     // The list of 36 colors for the grid
     val originalColors = listOf(
         colorResource(R.color.red), colorResource(R.color.orange), colorResource(R.color.yellow),
@@ -171,13 +173,13 @@ fun ColorPickerScreen(modifier: Modifier = Modifier) {
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically // Align the components vertically
                 ) {
-                    Text("Today you feel: ", modifier = Modifier.weight(1f), color = contrastColour) // Apply inverted text color
+                    Text("Today you feel: ", modifier = Modifier.weight(1f), color = contrastColour, fontWeight = FontWeight.Black) // Apply inverted text color
 
                     // The TextField for user input
                     androidx.compose.material3.TextField(
                         value = GlobalState.todayData.colorName,
                         onValueChange = { GlobalState.todayData = ColorDay(GlobalState.todayData.date, GlobalState.todayData.color, it, GlobalState.todayData.dateText) },
-                        label = { Text("Feeling name?", color = contrastColour) },
+                        label = { Text("Feeling name?", color = contrastColour, fontWeight = FontWeight.Black) },
                         singleLine = true,
                         modifier = Modifier
                             .weight(1f)
@@ -201,7 +203,7 @@ fun ColorPickerScreen(modifier: Modifier = Modifier) {
                     androidx.compose.material3.TextField(
                         value = GlobalState.todayData.dateText,
                         onValueChange = { GlobalState.todayData = ColorDay(GlobalState.todayData.date, GlobalState.todayData.color, GlobalState.todayData.colorName, it) },
-                        label = { Text("Why so?", color = contrastColour) },
+                        label = { Text("Why so?", color = contrastColour, fontWeight = FontWeight.Black) },
                         singleLine = true,
                         modifier = Modifier
                             .weight(1f)
