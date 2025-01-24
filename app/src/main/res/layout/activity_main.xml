@@ -21,30 +21,33 @@
         <!-- Icon for Page 1 -->
         <ImageButton
             android:id="@+id/buttonPage1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:scaleType="centerInside"
             android:background="@null"
             android:contentDescription="Colour Picker Tab"
-            android:src="@drawable/thingtemp"/>
+            android:src="@drawable/colorpicker"/>
 
         <!-- Icon for Page 2 -->
         <ImageButton
             android:id="@+id/buttonPage2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:scaleType="centerInside"
             android:background="@null"
             android:contentDescription="Calendar Tab"
-            android:src="@drawable/thingtemp"
+            android:src="@drawable/calendar"
             android:layout_marginStart="64dp"/>
 
         <!-- Icon for Page 3 -->
         <ImageButton
             android:id="@+id/buttonPage3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:scaleType="centerInside"
             android:background="@null"
             android:contentDescription="Analysis Tab"
-            android:src="@drawable/thingtemp"
+            android:src="@drawable/analysis"
             android:layout_marginStart="64dp"/>
     </LinearLayout>
 

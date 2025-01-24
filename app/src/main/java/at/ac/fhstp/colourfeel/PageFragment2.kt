@@ -42,11 +42,14 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import at.ac.fhstp.colourfeel.ui.theme.ColourFeelTheme
 import android.content.Context
+import androidx.compose.runtime.mutableStateListOf
 
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.sp
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 class PageFragment2 : Fragment(R.layout.fragment_page_2) {
     override fun onCreateView(
@@ -121,7 +124,6 @@ fun saveDay(context: Context, selectedDay: DayData) {
     }
 }
 
-
 // Function to retrieve the saved selected days from SharedPreferences
 fun getSavedDays(context: Context): List<DayData> {
     val sharedPrefs = context.getSharedPreferences("ColourFeelPrefs", Context.MODE_PRIVATE)
@@ -175,12 +177,12 @@ fun getCurrentDateInt(): Int {
     // Get the current date
     val currentDate = LocalDate.now()
 
-    // Format the current date as YYMMDD
+    // Format the current date as yyMMdd
     val formatter = DateTimeFormatter.ofPattern("yyMMdd")
     val formattedDate = currentDate.format(formatter)
 
     // Convert the formatted date string to an Int
-    return formattedDate.toInt() - 1
+    return formattedDate.toInt()
 }
 
 fun deleteSavedDay(context: Context, date: Int) {
@@ -205,21 +207,72 @@ fun deleteSavedDay(context: Context, date: Int) {
     }
 }
 
+fun formatDate(yyMMdd: Int): String {
+    // Convert yyMMdd (e.g., 250123) to a string (e.g., "25-01-23")
+    val dateStr = yyMMdd.toString().padStart(6, '0')
+    val year = "20" + dateStr.substring(0, 2) // Extract year part and convert to full year
+    val month = dateStr.substring(2, 4)
+    val day = dateStr.substring(4, 6)
+
+    // Create the LocalDate object
+    val date = LocalDate.parse("$year-$month-$day", DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
+    // Get the day of the week, month, and day of the month
+    val dayOfWeek = date.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, Locale.ENGLISH)
+    val dayOfMonth = date.dayOfMonth
+    val monthName = date.month.getDisplayName(java.time.format.TextStyle.FULL, Locale.ENGLISH)
+
+    // Get the correct suffix for the day of the month
+    val suffix = when (dayOfMonth % 10) {
+        1 -> if (dayOfMonth == 11) "th" else "st"
+        2 -> if (dayOfMonth == 12) "th" else "nd"
+        3 -> if (dayOfMonth == 13) "th" else "rd"
+        else -> "th"
+    }
+
+    // Format the final string
+    return "$dayOfWeek the $dayOfMonth$suffix of $monthName, $year"
+}
+
 @Composable
 fun CalendarScreen(modifier: Modifier = Modifier, context: Context) {
 
-    // The list of 36 colors for the grid
-    val  originalDayList = getSavedDays(context = context)
+    // The list of saved days
+    val originalDayList = getSavedDays(context = context)
 
-    val dayList = remember { originalDayList.sortedBy { it.date } }
+    // Use a state to store the day list and sort it by date
+    val days = remember { mutableStateListOf(*originalDayList.toTypedArray()) }
 
-    val days = remember { dayList }
+    val blankDaysCount = 3
+
+    // Add two blank days at the start
+    val blankDays = List(blankDaysCount) {
+        DayData(date = -(it + 1), color = Color.Transparent, colorName = "", dateText = "", dayTitle = "")
+    }
+
+    // Sort the list by date (note: blank days will still appear at the start)
+    days.sortBy { it.date }
 
     val contrastColour = contrastColor(GlobalState.todayData.color)
 
-    var selectedDay by remember { mutableStateOf(DayData(112201, Color.White, "", "", "")) }
+    var selectedDay by remember { mutableStateOf(days[23]) } // Now start with the first real day (after the two blanks)
 
-    saveDay(context, DayData(getCurrentDateInt(), GlobalState.todayData.color, GlobalState.todayData.colorName, GlobalState.todayData.dateText, ""))
+    val currentDateInt = getCurrentDateInt()
+
+    val letters = listOf("S", "M", "T", "W", "T", "F", "S")
+
+    deleteSavedDay(context, currentDateInt)
+
+    // Save new day and update the state immediately
+    val newDay = DayData(currentDateInt, GlobalState.todayData.color, GlobalState.todayData.colorName, GlobalState.todayData.dateText, "")
+    saveDay(context, newDay)
+
+    // Update the local state for the list and ensure it is sorted
+    days.clear() // Clear the old list
+    days.addAll(getSavedDays(context)) // Reload the updated list
+    // Add blank days to the start of the days list
+    days.addAll(0, blankDays)
+    days.sortBy { it.date } // Ensure the list is sorted by date
 
     Column(
         modifier = modifier
@@ -227,7 +280,41 @@ fun CalendarScreen(modifier: Modifier = Modifier, context: Context) {
             .background(GlobalState.todayData.color) // Use selected color as the background for the Column
             .padding(16.dp)
     ) {
-        // Grid of colors
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(7),
+            modifier = Modifier
+                .fillMaxWidth(),
+            contentPadding = PaddingValues(3.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(letters) { letter ->
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(RoundedCornerShape(18.dp)) // Add this to round the corners
+                        .background(offWhiteColor(GlobalState.todayData.color, 32))
+                        .border(
+                            6.dp,
+                            midColor(
+                                GlobalState.todayData.color,
+                                offWhiteColor(GlobalState.todayData.color, 32)
+                            ),
+                            RoundedCornerShape(18.dp)
+                        )
+                )
+                Text(
+                    letter,
+                    modifier = Modifier
+                        .size(60.dp)
+                        .wrapContentHeight(align = Alignment.CenterVertically),
+                    textAlign = TextAlign.Center,
+                    color = contrastColor(offWhiteColor(GlobalState.todayData.color, 32)),
+                    fontWeight = FontWeight.Black
+                )
+            }
+        }
+
+        // Grid of colors with blank days added
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
             modifier = Modifier
@@ -238,50 +325,98 @@ fun CalendarScreen(modifier: Modifier = Modifier, context: Context) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(days) { day ->
-                if (getCurrentDateInt() == day.date) {
-                    deleteSavedDay(context, day.date)
-                    saveDay(context, DayData(getCurrentDateInt(), GlobalState.todayData.color, GlobalState.todayData.colorName, GlobalState.todayData.dateText, ""))
+                if (day.date < 0) {
                     Box(
                         modifier = Modifier
                             .size(60.dp)
                             .clip(RoundedCornerShape(18.dp)) // Add this to round the corners
                             .background(GlobalState.todayData.color)
-                            .border(
-                                6.dp,
-                                offWhiteColor(midColor(GlobalState.todayData.color, day.color), 32),
-                                RoundedCornerShape(18.dp)
-                            )
-                            .clickable { selectedDay = day }
-                    )
-                    Text(
-                        (day.date % 100).toString(), modifier = Modifier
-                            .size(60.dp)
-                            .wrapContentHeight(align = Alignment.CenterVertically),
-                        textAlign = TextAlign.Center,
-                        color = contrastColor(GlobalState.todayData.color)
                     )
                 } else {
-                    Box(
-                        modifier = Modifier
-                            .size(60.dp)
-                            .clip(RoundedCornerShape(18.dp)) // Add this to round the corners
-                            .background(day.color)
-                            .border(
-                                6.dp,
-                                offWhiteColor(midColor(GlobalState.todayData.color, day.color), 32),
-                                RoundedCornerShape(18.dp)
-                            )
-                            .clickable { selectedDay = day }
-                    )
-                    Text(
-                        (day.date % 100).toString(), modifier = Modifier
-                            .size(60.dp)
-                            .wrapContentHeight(align = Alignment.CenterVertically),
-                        textAlign = TextAlign.Center,
-                        color = contrastColor(day.color)
-                    )
+                    if (currentDateInt == day.date) {
+                        deleteSavedDay(context, day.date)
+                        saveDay(context, newDay)
+                        Box(
+                            modifier = Modifier
+                                .size(60.dp)
+                                .clip(RoundedCornerShape(18.dp)) // Add this to round the corners
+                                .background(GlobalState.todayData.color)
+                                .border(
+                                    width = if (day == selectedDay) 8.dp else 6.dp,
+                                    offWhiteColor(
+                                        midColor(GlobalState.todayData.color, day.color),
+                                        64
+                                    ),
+                                    RoundedCornerShape(18.dp)
+                                )
+                                .clickable {
+                                    selectedDay = day
+                                    deleteSavedDay(context, day.date)
+                                    saveDay(context, newDay)
+                                    days.clear()
+                                    days.addAll(getSavedDays(context)) // Reload updated list
+                                    days.sortBy { it.date } // Sort the list again after change
+                                }
+                        )
+                        Text(
+                            (day.date % 100).toString(), modifier = Modifier
+                                .size(60.dp)
+                                .wrapContentHeight(align = Alignment.CenterVertically),
+                            textAlign = TextAlign.Center,
+                            color = contrastColor(GlobalState.todayData.color),
+                            fontWeight = FontWeight.Black
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .size(60.dp)
+                                .clip(RoundedCornerShape(18.dp)) // Add this to round the corners
+                                .background(day.color)
+                                .border(
+                                    width = if (day == selectedDay) 8.dp else 4.dp,
+                                    offWhiteColor(
+                                        midColor(GlobalState.todayData.color, day.color),
+                                        32
+                                    ),
+                                    RoundedCornerShape(18.dp)
+                                )
+                                .clickable {
+                                    selectedDay = day
+                                }
+                        )
+                        Text(
+                            (day.date % 100).toString(), modifier = Modifier
+                                .size(60.dp)
+                                .wrapContentHeight(align = Alignment.CenterVertically),
+                            textAlign = TextAlign.Center,
+                            color = contrastColor(day.color),
+                            fontWeight = FontWeight.Black
+                        )
+                    }
                 }
             }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically // Align the components vertically
+        ) {
+
+            Text(
+                formatDate(selectedDay.date),
+                modifier = Modifier.weight(1f),
+                color = contrastColour,
+                fontWeight = FontWeight.Black,
+                textAlign = TextAlign.Center,
+                fontSize = (32.sp),
+                lineHeight = 32.sp
+
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -328,7 +463,7 @@ fun CalendarScreen(modifier: Modifier = Modifier, context: Context) {
                         selectedDay.colorName,
                         modifier = Modifier.weight(1f),
                         color = contrastColour,
-                        fontWeight = FontWeight.Black
+                        fontWeight = FontWeight.Medium
                     )
                 }
 
@@ -353,10 +488,11 @@ fun CalendarScreen(modifier: Modifier = Modifier, context: Context) {
                         selectedDay.dateText,
                         modifier = Modifier.weight(1f),
                         color = contrastColour,
-                        fontWeight = FontWeight.Black
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
         }
     }
 }
+
