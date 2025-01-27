@@ -165,7 +165,7 @@ fun initEmptyMonth(context: Context){
     saveDay(context, DayData(250124, Color.White, "", "", ""))
     saveDay(context, DayData(250125, Color.White, "", "", ""))
     saveDay(context, DayData(250126, Color.White, "", "", ""))
-    saveDay(context, DayData(250127, Color.Blue, "", "", ""))
+    saveDay(context, DayData(250127, Color.White, "", "", ""))
     saveDay(context, DayData(250128, Color.White, "", "", ""))
 
     saveDay(context, DayData(250129, Color.White, "", "", ""))
@@ -271,6 +271,10 @@ fun CalendarScreen(modifier: Modifier = Modifier, context: Context) {
     // Save new day and update the state immediately
     val newDay = DayData(currentDateInt, GlobalState.todayData.color, GlobalState.todayData.colorName, GlobalState.todayData.dateText, "")
     saveDay(context, newDay)
+
+    //days.forEach(){day ->
+    //    deleteSavedDay(context, day.date)
+    //}
 
     // Update the local state for the list and ensure it is sorted
     days.clear() // Clear the old list
