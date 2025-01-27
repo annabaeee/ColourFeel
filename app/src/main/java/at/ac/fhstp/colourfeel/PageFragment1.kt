@@ -68,7 +68,17 @@ fun contrastColor(color: Color): Color {
     val red = (((color.red * 128) + 192)%255).toInt()
     val green = (((color.green * 128) + 192)%255).toInt()
     val blue = (((color.blue * 128) + 192)%255).toInt()
-    return Color((red*0.6+green*0.2+blue*0.2).toInt() / 255f, (red*0.2+green*0.6+blue*0.2).toInt() / 255f, (red*0.2+green*0.2+blue*0.6).toInt() / 255f)
+    val Hue = getHue(color)
+    val Sat = (getSaturation(color)*0.8).toFloat()
+    val Val = if((0.299f * red + 0.587f * green + 0.114f * blue) > 128 ){
+        0.85
+    } else {
+        0.25
+    }
+
+    return hsvToRgb(Hue, Sat, Val.toFloat())
+
+    //return Color((red*0.6+green*0.2+blue*0.2).toInt() / 255f, (red*0.2+green*0.6+blue*0.2).toInt() / 255f, (red*0.2+green*0.2+blue*0.6).toInt() / 255f)
 }
 
 // Function to create off white

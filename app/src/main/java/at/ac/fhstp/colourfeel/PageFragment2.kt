@@ -237,6 +237,8 @@ fun formatDate(yyMMdd: Int): String {
 @Composable
 fun CalendarScreen(modifier: Modifier = Modifier, context: Context) {
 
+    initEmptyMonth(context)
+
     // The list of saved days
     val originalDayList = getSavedDays(context = context)
 
@@ -261,6 +263,9 @@ fun CalendarScreen(modifier: Modifier = Modifier, context: Context) {
 
     val letters = listOf("S", "M", "T", "W", "T", "F", "S")
 
+    deleteSavedDay(context, currentDateInt)
+    deleteSavedDay(context, currentDateInt)
+    deleteSavedDay(context, currentDateInt)
     deleteSavedDay(context, currentDateInt)
 
     // Save new day and update the state immediately
