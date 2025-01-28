@@ -24,9 +24,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 class PageFragment3 : Fragment(R.layout.fragment_page_3) {
 
@@ -97,7 +97,7 @@ fun getAverageColorMonth(days: List<DayData>): Color {
 }
 
 fun getAverageColorWeek(days: List<DayData>): Color {
-    // Get the last 31 days (if there are fewer than 31, take as many as available)
+    // Get the last 7 days (if there are fewer than 7, take as many as available)
     val last7Days = days.takeLast(7)
 
     // Initialize sum of R, G, and B components
@@ -137,9 +137,10 @@ fun getBrightness(color: Color): Color {
     val red = color.red
     val green = color.green
     val blue = color.blue
+    val dat = sqrt(0.299f * red * red + 0.587f * green * green + 0.114f * blue * blue)
 
     // Apply the luminance formula to get brightness
-    return Color(0.299f * red + 0.587f * green + 0.114f * blue, 0.299f * red + 0.587f * green + 0.114f * blue, 0.299f * red + 0.587f * green + 0.114f * blue)
+    return Color(dat, dat, dat)
 }
 
 fun getHue(color: Color): Float {
@@ -320,8 +321,8 @@ fun AnalysisScreen(modifier: Modifier = Modifier, context: Context) {
             verticalArrangement = Arrangement.spacedBy(15.dp)
         ) {
             val dataPoints = arrayOf(
-                arrayOf("Last Month Average:", getAverageColorMonth(getSavedDays(context)), getAverageColorMonth(getSavedDays(context))),
-                arrayOf("Last Week Average:",getAverageColorWeek(getSavedDays(context)), getAverageColorWeek(getSavedDays(context))),
+                arrayOf("Last Month Average ", getAverageColorMonth(getSavedDays(context)), getAverageColorMonth(getSavedDays(context))),
+                arrayOf("Last Week Average ",getAverageColorWeek(getSavedDays(context)), getAverageColorWeek(getSavedDays(context))),
                 arrayOf("Brightness Change % " + (getBrightness(getAverageColorMonth(getSavedDays(context))).red*100).roundToInt(), getBrightness(getAverageColorMonth(getSavedDays(context))), getBrightness(GlobalState.todayData.color)),
                 arrayOf("Brightness Change % " + (getBrightness(getAverageColorWeek(getSavedDays(context))).red*100).roundToInt(), getBrightness(getAverageColorWeek(getSavedDays(context))), getBrightness(GlobalState.todayData.color)),
                 arrayOf("Hue Change in Degrees " + (getHue(getAverageColorMonth(getSavedDays(context))) - getHue(GlobalState.todayData.color)).roundToInt(), hsvToRgb(getHue(getAverageColorMonth(getSavedDays(context))), 1f, 1f), hsvToRgb(getHue(GlobalState.todayData.color)), 1f, 1f),
@@ -330,22 +331,32 @@ fun AnalysisScreen(modifier: Modifier = Modifier, context: Context) {
                 arrayOf("Saturation Change % " + (0 - ((getSaturation(getAverageColorWeek(getSavedDays(context)))*100) - (getSaturation(GlobalState.todayData.color))*100).roundToInt()), hsvToRgb(getHue(getAverageColorWeek(getSavedDays(context))), getSaturation(getAverageColorWeek(getSavedDays(context))), 1f), hsvToRgb(getHue(getAverageColorWeek(getSavedDays(context))), getSaturation(GlobalState.todayData.color), 1f)))
 
             items(dataPoints) { dataPoint ->
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(RoundedCornerShape(24.dp)) // Add this to round the corners
-                        .background(Brush.verticalGradient(
-                            colors = listOf(dataPoint[1] as Color, dataPoint[2] as Color)
-                        ))
-                        .border(6.dp, offWhiteColor(GlobalState.todayData.color, 32), RoundedCornerShape(24.dp))
-                )
-                Text(""+dataPoint[0],
+                Row (
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(24.dp),
-                    fontWeight = FontWeight.Black,
-                    color = contrastColor(dataPoint[1] as Color)
-                )
+                        .padding(horizontal = 4.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Box(
+                        modifier = Modifier
+                            .width(50.dp)
+                            .height(100.dp)
+                            .clip(RoundedCornerShape(25.dp)) // Add this to round the corners
+                            .background(Brush.verticalGradient(
+                                colors = listOf(dataPoint[1] as Color, dataPoint[2] as Color)
+                            ))
+                            .border(6.dp, offWhiteColor(GlobalState.todayData.color, 32), RoundedCornerShape(24.dp)
+                            )
+                    )
+                    Text(""+dataPoint[0],
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        fontWeight = FontWeight.Black,
+                        color = contrastColor(GlobalState.todayData.color)
+                    )
+                }
             }
         }
     }
